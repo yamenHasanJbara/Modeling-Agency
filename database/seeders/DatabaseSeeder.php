@@ -6,6 +6,7 @@ use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Modules\Category\Database\Seeders\CategoryDatabaseSeeder;
+use Modules\Model\Database\Seeders\ModelDatabaseSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -15,5 +16,6 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call(CategoryDatabaseSeeder::class);
+        $this->call(ModelDatabaseSeeder::class);
     }
 }
