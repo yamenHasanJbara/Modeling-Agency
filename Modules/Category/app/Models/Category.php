@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Modules\Category\Database\Factories\CategoryFactory;
+use Modules\Model\Models\Model as ModelsModel;
 
 // use Modules\Category\Database\Factories\CategoryFactory;
 
@@ -24,7 +25,13 @@ class Category extends Model
         return CategoryFactory::new();
     }
 
-    public function categories() : HasMany{
+    public function categories() : HasMany
+    {
         return $this->hasMany(self::class);
+    }
+
+    public function models() : HasMany
+    {
+        return $this->hasMany(ModelsModel::class);
     }
 }
