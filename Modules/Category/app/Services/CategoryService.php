@@ -2,7 +2,7 @@
 
 namespace Modules\Category\Services;
 
-use App\Repositories\CrudRepositoryInterface;
+use Modules\Category\Repositories\CategoryRepositoryInterface;
 
 class CategoryService{
 
@@ -10,7 +10,7 @@ class CategoryService{
      * Inject the repository.
      */
     public function __construct(
-        protected CrudRepositoryInterface $categoryRepository
+        protected CategoryRepositoryInterface $categoryRepository
     )
     {}
 
