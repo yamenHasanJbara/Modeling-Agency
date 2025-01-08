@@ -2,12 +2,11 @@
 
 namespace Modules\Model\Repositories;
 
-use App\Repositories\CrudRepositoryInterface;
 use Spatie\QueryBuilder\QueryBuilder;
 use Modules\Model\Models\Model;
 use Symfony\Component\CssSelector\Exception\InternalErrorException;
 
-class ModelRepository implements CrudRepositoryInterface{
+class ModelRepository implements ModelRepositoryInterface{
 
 
     /**

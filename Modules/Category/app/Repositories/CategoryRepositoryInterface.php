@@ -1,11 +1,11 @@
 <?php
 
 
-namespace App\Repositories;
+namespace Modules\Category\Repositories;
 
 
 
-interface CrudRepositoryInterface {
+interface CategoryRepositoryInterface {
 
     public function all(array $includes, array $filters, int $page, int $perPage);
     public function create(array $data);

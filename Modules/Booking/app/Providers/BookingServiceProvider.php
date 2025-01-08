@@ -1,21 +1,21 @@
 <?php
 
-namespace Modules\Category\Providers;
+namespace Modules\Booking\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Modules\Category\Repositories\CategoryRepository;
-use Modules\Category\Repositories\CategoryRepositoryInterface;
+use Modules\Booking\Repositories\BookingRepository;
+use Modules\Booking\Repositories\BookingRepositoryInterface;
 use Nwidart\Modules\Traits\PathNamespace;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 
-class CategoryServiceProvider extends ServiceProvider
+class BookingServiceProvider extends ServiceProvider
 {
     use PathNamespace;
 
-    protected string $name = 'Category';
+    protected string $name = 'Booking';
 
-    protected string $nameLower = 'category';
+    protected string $nameLower = 'booking';
 
     /**
      * Boot the application events.
@@ -33,8 +33,10 @@ class CategoryServiceProvider extends ServiceProvider
     {
         $this->app->register(EventServiceProvider::class);
         $this->app->register(RouteServiceProvider::class);
-        $this->app->bind(CategoryRepositoryInterface::class, CategoryRepository::class);
+        $this->app->bind(BookingRepositoryInterface::class, BookingRepository::class);
     }
+
+
 
     /**
      * Register config.
@@ -59,6 +61,7 @@ class CategoryServiceProvider extends ServiceProvider
             }
         }
     }
+
 
     /**
      * Get the services provided by the provider.

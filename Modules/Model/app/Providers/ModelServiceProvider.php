@@ -2,9 +2,9 @@
 
 namespace Modules\Model\Providers;
 
-use App\Repositories\CrudRepositoryInterface;
 use Illuminate\Support\ServiceProvider;
 use Modules\Model\Repositories\ModelRepository;
+use Modules\Model\Repositories\ModelRepositoryInterface;
 use Nwidart\Modules\Traits\PathNamespace;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -33,7 +33,7 @@ class ModelServiceProvider extends ServiceProvider
     {
         $this->app->register(EventServiceProvider::class);
         $this->app->register(RouteServiceProvider::class);
-        $this->app->bind(CrudRepositoryInterface::class, ModelRepository::class);
+        $this->app->bind(ModelRepositoryInterface::class, ModelRepository::class);
     }
 
 

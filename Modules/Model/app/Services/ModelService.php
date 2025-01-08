@@ -2,8 +2,8 @@
 
 namespace Modules\Model\Services;
 
-use App\Repositories\CrudRepositoryInterface;
 use Illuminate\Support\Facades\Storage;
+use Modules\Model\Repositories\ModelRepositoryInterface;
 
 class ModelService{
 
@@ -11,7 +11,7 @@ class ModelService{
      * Inject the repository.
      */
     public function __construct(
-        protected CrudRepositoryInterface $modelRepository
+        protected ModelRepositoryInterface $modelRepository
     )
     {}
 
