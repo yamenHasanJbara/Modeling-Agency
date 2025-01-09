@@ -17,4 +17,7 @@ use Modules\Category\Http\Controllers\CategoryController;
 // Route::middleware(['auth:sanctum'])->prefix('v1')->group(function () {
 
 // });
-Route::apiResource('category', CategoryController::class)->names('category');
+
+Route::get('categories/trashed', [CategoryController::class, 'getTrashed']);
+Route::get('categories/restore/{id}', [CategoryController::class, 'restore']);
+Route::apiResource('categories', CategoryController::class)->names('categories');

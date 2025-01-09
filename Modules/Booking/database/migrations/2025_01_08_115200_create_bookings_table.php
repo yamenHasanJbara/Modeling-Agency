@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('customer_name', 100);
             $table->date('booking_date');
-            $table->foreignId('model_id')->constrained('models', 'id');
+            $table->foreignId('model_id')->constrained('models', 'id')->onDelete('cascade');
             $table->softDeletes();
             $table->timestamps();
         });

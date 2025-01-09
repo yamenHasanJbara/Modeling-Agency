@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Http\Traits;
 
 trait JsonResponse
@@ -40,7 +39,7 @@ trait JsonResponse
                 'errors' => $errors,
             ]
         );
+
         return $resourceInstance;
     }
 }
-

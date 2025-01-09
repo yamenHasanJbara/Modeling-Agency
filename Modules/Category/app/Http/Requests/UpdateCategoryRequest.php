@@ -8,7 +8,6 @@ use Illuminate\Validation\Rule;
 
 class UpdateCategoryRequest extends FormRequest
 {
-
     use JsonValidationErrors;
 
     /**
@@ -18,8 +17,8 @@ class UpdateCategoryRequest extends FormRequest
     {
         return
         [
-            'name' => ['required', 'max:100', Rule::unique('categories', 'name')],
-            'category_id' => ['integer', Rule::exists('categories', 'id')]
+            'name' => ['required', 'max:100', Rule::unique('categories', 'name')->where('deleted_at', '=', null)],
+            'category_id' => ['integer', Rule::exists('categories', 'id')],
         ];
     }
 

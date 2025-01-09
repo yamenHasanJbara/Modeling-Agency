@@ -20,7 +20,8 @@ class ModelResource extends JsonResource
             'height' => $this->height,
             'shoe_size' => $this->shoe_size,
             'picture' => $this->picture,
-            'category' => $this->whenLoaded('category')
+            'category' => $this->whenLoaded('category'),
+            'bookings' => $this->whenLoaded('bookings'),
         ];
     }
 }

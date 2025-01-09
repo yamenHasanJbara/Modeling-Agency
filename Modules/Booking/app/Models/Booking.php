@@ -2,12 +2,12 @@
 
 namespace Modules\Booking\Models;
 
-use Modules\Model\Models\Model as ModelsModel;
-use Illuminate\Database\Eloquent\Model as LaravelModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model as LaravelModel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Modules\Booking\Database\Factories\BookingFactory;
+use Modules\Model\Models\Model as ModelsModel;
 
 // use Modules\Booking\Database\Factories\BookingFactory;
 
@@ -25,9 +25,8 @@ class Booking extends LaravelModel
         return $this->belongsTo(ModelsModel::class);
     }
 
-
     protected static function newFactory(): BookingFactory
     {
-         return BookingFactory::new();
+        return BookingFactory::new();
     }
 }

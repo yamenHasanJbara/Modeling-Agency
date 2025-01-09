@@ -8,7 +8,6 @@ use Illuminate\Validation\Rule;
 
 class UpdateBookingRequest extends FormRequest
 {
-
     use JsonValidationErrors;
 
     /**
@@ -20,7 +19,7 @@ class UpdateBookingRequest extends FormRequest
         [
             'customer_name' => ['required', 'string', 'min:6', 'max:100'],
             'booking_date' => ['required', 'date', 'date_format:Y-m-d', 'after_or_equal:today'],
-            'model_id' => ['required', 'integer', Rule::exists('models', 'id')]
+            'model_id' => ['required', 'integer', Rule::exists('models', 'id')],
         ];
     }
 

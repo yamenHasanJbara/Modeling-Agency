@@ -8,7 +8,6 @@ use Illuminate\Validation\Rule;
 
 class StoreModelRequest extends FormRequest
 {
-
     use JsonValidationErrors;
 
     /**
@@ -23,7 +22,7 @@ class StoreModelRequest extends FormRequest
             'height' => ['required', 'integer'],
             'shoe_size' => ['required', 'integer'],
             'picture' => ['required', 'image', 'mimes:png,jpg,jpeg', 'max:2048'],
-            'category_id' => ['required', 'integer', Rule::exists('categories', 'id')]
+            'category_id' => ['required', 'integer', Rule::exists('categories', 'id')],
         ];
     }
 

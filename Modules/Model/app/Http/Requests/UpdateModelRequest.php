@@ -8,7 +8,6 @@ use Illuminate\Validation\Rule;
 
 class UpdateModelRequest extends FormRequest
 {
-
     use JsonValidationErrors;
 
     /**
@@ -23,7 +22,7 @@ class UpdateModelRequest extends FormRequest
             'height' => ['integer'],
             'shoe_size' => ['integer'],
             'picture' => ['image', 'mimes:png,jpg,jpeg', 'max:2048'],
-            'category_id' => ['integer', Rule::exists('categories', 'id')]
+            'category_id' => ['integer', Rule::exists('categories', 'id')],
         ];
     }
 
