@@ -81,6 +81,7 @@ class ModelController extends Controller
     public function update(UpdateModelRequest $request, $id)
     {
         $updatedModel = $this->modelService->update($request->validated(), $id);
+
         if (! $updatedModel) {
             return $this->error(Response::HTTP_NOT_FOUND, 'Resourse not found!');
         }
