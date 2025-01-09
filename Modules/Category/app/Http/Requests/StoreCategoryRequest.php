@@ -17,8 +17,16 @@ class StoreCategoryRequest extends FormRequest
     {
         return
         [
-            'name' => ['required', 'max:100', Rule::unique('categories', 'name')->where('deleted_at', '=', null)],
+            'name' => ['required', 'max:100', Rule::unique('categories', 'name')],
             'category_id' => ['integer', Rule::exists('categories', 'id')],
+        ];
+    }
+
+    public function messages()
+    {
+        return
+        [
+            'name.unique' => 'The name has already been taken, check the deleted record or existing once'
         ];
     }
 

@@ -73,6 +73,7 @@ class ModelService
         }
 
         $model = $this->modelRepository->update($data, $id);
+
         if ($model['old_picture'] !== null && Storage::exists('profile_pictures/'.$model['old_picture'])) {
             Storage::delete('profile_pictures/'.$model['old_picture']);
         }
@@ -91,9 +92,11 @@ class ModelService
             return $model;
         }
 
-        if ($model['model'] && Storage::exists('profile_pictures/'.$model['picture'])) {
-            Storage::delete('profile_pictures/'.$model['picture']);
-        }
+        // This is depending on the logic, if we want to delete the picture or not.
+
+        // if ($model['model'] && Storage::exists('profile_pictures/'.$model['picture'])) {
+        //     Storage::delete('profile_pictures/'.$model['picture']);
+        // }
 
         return $model['model'];
     }

@@ -61,7 +61,10 @@ class ModelRepository implements ModelRepositoryInterface
         try {
             $model = Model::query()->find($id);
             if (! $model) {
-                return null;
+                return [
+                    'model' => $model,
+                    'old_picture' => null,
+                ];
             }
             $oldPicture = isset($data['picture']) ? $model->picture : null;
             $model->update($data);
@@ -104,7 +107,11 @@ class ModelRepository implements ModelRepositoryInterface
         try {
             $model = Model::query()->find($id);
             if (! $model) {
-                return null;
+                return
+                [
+                    'picture' => null,
+                    'model' => $model,
+                ];
             }
 
             return
