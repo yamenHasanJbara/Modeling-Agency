@@ -6,20 +6,23 @@ use Modules\Booking\Models\Booking;
 use Spatie\QueryBuilder\QueryBuilder;
 use Symfony\Component\CssSelector\Exception\InternalErrorException;
 
-class BookingRepository implements BookingRepositoryInterface{
-
-
+class BookingRepository implements BookingRepositoryInterface
+{
     /**
      * Get All booking with abilty to filter on the customer_name, booking_date.
      */
-    public function all(array $includes, array $filters, int $page, int $PerPage){
-        return QueryBuilder::for(Booking::class)
-        ->allowedIncludes($includes)
-        ->allowedFilters($filters)
-        ->defaultSort('-id')
-        ->paginate($PerPage, ['*'], 'page', $page);
+    public function all(array $includes, array $filters, int $page, int $PerPage)
+    {
+        try {
+            return QueryBuilder::for(Booking::class)
+                ->allowedIncludes($includes)
+                ->allowedFilters($filters)
+                ->defaultSort('-id')
+                ->paginate($PerPage, ['*'], 'page', $page);
+        } catch (\Throwable $th) {
+            return new InternalErrorException('');
+        }
     }
-
 
     /**
      * Create Booking record.
@@ -42,12 +45,12 @@ class BookingRepository implements BookingRepositoryInterface{
         try {
             $booking = Booking::query()->find($id);
 
-            if (!$booking) {
+            if (! $booking) {
                 return null;
             }
             $booking->update($data);
 
-           return $booking;
+            return $booking;
         } catch (\Throwable $th) {
             return new InternalErrorException('');
         }
@@ -71,12 +74,12 @@ class BookingRepository implements BookingRepositoryInterface{
     public function delete(int $id)
     {
         try {
-            $booking =  Booking::query()->find($id);
-            if (!$booking) {
+            $booking = Booking::query()->find($id);
+            if (! $booking) {
                 return null;
             }
 
-           return $booking->delete();
+            return $booking->delete();
         } catch (\Throwable $th) {
             return new InternalErrorException('');
         }
@@ -85,15 +88,15 @@ class BookingRepository implements BookingRepositoryInterface{
     /**
      * Check the availability for model
      */
-    public function checkIfModeAvailable(int $modelId, $date)
+    public function checkIfModelAvailable(int $modelId, $date)
     {
         try {
-
             $booking = Booking::query()
-            ->where('model_id', '=', $modelId)
-            ->where('booking_date', '=', $date)->first();
+                ->where('model_id', '=', $modelId)
+                ->where('booking_date', '=', $date)->first();
 
-            if (!$booking) {
+            // This means that model is available
+            if (! $booking) {
                 return true;
             }
 
@@ -103,4 +106,14 @@ class BookingRepository implements BookingRepositoryInterface{
         }
     }
 
+    /**
+     * Restore record that deleted using soft delete through the modles module.
+     */
+    public function restore(int $id)
+    {
+        $booking = Booking::query()->onlyTrashed()->find($id);
+        if ($booking && $booking->trashed()) {
+            $booking->restore();
+        }
+    }
 }

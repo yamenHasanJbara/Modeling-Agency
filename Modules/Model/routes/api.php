@@ -18,5 +18,7 @@ use Modules\Model\Http\Controllers\ModelController;
 
 // });
 
-Route::post('model/update/{id}', [ModelController::class, 'update']);
-Route::apiResource('model', ModelController::class)->names('model');
+Route::get('models/trashed', [ModelController::class, 'getTrashed']);
+Route::get('models/restore/{id}', [ModelController::class, 'restore']);
+Route::post('models/update/{id}', [ModelController::class, 'update']);
+Route::apiResource('models', ModelController::class)->names('models');

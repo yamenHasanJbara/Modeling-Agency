@@ -17,5 +17,4 @@ use Modules\Booking\Http\Controllers\BookingController;
 // Route::middleware(['auth:sanctum'])->prefix('v1')->group(function () {
 // });
 
-Route::apiResource('booking', BookingController::class)->names('booking');
-
+Route::apiResource('bookings', BookingController::class)->names('bookings');

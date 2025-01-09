@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Http\Traits;
 
 use Symfony\Component\HttpFoundation\Response;
@@ -16,24 +15,21 @@ use Symfony\Component\HttpFoundation\Response;
 
 trait ApiResponser
 {
-
     protected function success($data, $message = null, $code = Response::HTTP_OK)
     {
         return response()->json([
             'status' => true,
             'message' => $message,
-            'data' => $data
+            'data' => $data,
         ], $code);
     }
-
 
     protected function error($code, $message = null, $data = [])
     {
         return response()->json([
             'status' => false,
             'message' => $message,
-            'data' => $data
+            'data' => $data,
         ], $code);
     }
-
 }
