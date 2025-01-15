@@ -2,65 +2,86 @@
 
 namespace Modules\Model\Repositories;
 
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Collection;
 use Modules\Model\Models\Model;
 use Spatie\QueryBuilder\QueryBuilder;
 use Symfony\Component\CssSelector\Exception\InternalErrorException;
 
 class ModelRepository implements ModelRepositoryInterface
 {
+
     /**
-     * Get All Model with abilty to filter on the name, height.
+     * Get All Model with ability to filter on the name, height.
+     *
+     * @param array $includes
+     * @param array $filters
+     * @param int $page
+     * @param int $perPage
+     * @return LengthAwarePaginator
+     * @throws InternalErrorException
      */
-    public function all(array $includes, array $filters, int $page, int $PerPage)
+    public function all(array $includes, array $filters, int $page, int $perPage): LengthAwarePaginator
     {
         try {
             return QueryBuilder::for(Model::class)
-            ->allowedIncludes($includes)
-            ->allowedFilters($filters)
-            ->defaultSort('-id')
-            ->paginate($PerPage, ['*'], 'page', $page);
-        } catch (\Throwable $th) {
-            return new InternalErrorException('');
+                ->allowedIncludes($includes)
+                ->allowedFilters($filters)
+                ->defaultSort('-id')
+                ->paginate($perPage, ['*'], 'page', $page);
+        } catch (\Exception) {
+            throw new InternalErrorException('');
         }
     }
 
     /**
-     * Get all trashed models
+     * Get all trashed models.
+     *
+     * @param array $filters
+     * @param int $page
+     * @param int $perPage
+     * @return mixed
+     * @throws InternalErrorException
      */
-    public function getTrashed(array $filters, int $page, int $PerPage)
+    public function getTrashed(array $filters, int $page, int $perPage): mixed
     {
-       try {
-        return QueryBuilder::for(Model::class)
-        ->onlyTrashed()
-        ->allowedFilters($filters)
-        ->defaultSort('-id')
-        ->paginate($PerPage, ['*'], 'page', $page);
-       } catch (\Throwable $th) {
-        return new InternalErrorException('');
-       }
+        try {
+            return QueryBuilder::for(Model::class)
+                ->onlyTrashed()
+                ->allowedFilters($filters)
+                ->defaultSort('-id')
+                ->paginate($perPage, ['*'], 'page', $page);
+        } catch (\Exception) {
+            throw new InternalErrorException('');
+        }
     }
 
     /**
-     * Create Model record.
+     * @param array $data
+     * @return \Illuminate\Database\Eloquent\Model|Model
+     * @throws InternalErrorException
      */
-    public function create(array $data)
+    public function create(array $data): \Illuminate\Database\Eloquent\Model|Model
     {
         try {
             return Model::query()->create($data);
-        } catch (\Throwable $th) {
-            return new InternalErrorException('');
+        } catch (\Exception) {
+            throw new InternalErrorException('');
         }
 
     }
 
     /**
-     * Update Model record.
+     * @param array $data
+     * @param int $id
+     * @return array
+     * @throws InternalErrorException
      */
-    public function update(array $data, int $id)
+    public function update(array $data, int $id): array
     {
         try {
             $model = Model::query()->find($id);
-            if (! $model) {
+            if (!$model) {
                 return [
                     'model' => $model,
                     'old_picture' => null,
@@ -73,59 +94,70 @@ class ModelRepository implements ModelRepositoryInterface
                 'model' => $model,
                 'old_picture' => $oldPicture,
             ];
-        } catch (\Throwable $th) {
-            return new InternalErrorException('');
+        } catch (\Exception) {
+            throw new InternalErrorException('');
         }
     }
 
     /**
-     * Find Model based on passed ID.
+     * @param int $id
+     * @return Collection|\Illuminate\Database\Eloquent\Model|Model|null
+     * @throws InternalErrorException
      */
-    public function find(int $id)
+    public function find(int $id): \Illuminate\Database\Eloquent\Model|Collection|Model|null
     {
         try {
             return Model::query()->find($id);
-        } catch (\Throwable $th) {
-            return new InternalErrorException('');
+        } catch (\Exception) {
+            throw new InternalErrorException('');
         }
     }
 
-    public function findTrashed(int $id)
+    /**
+     * @param int $id
+     * @return mixed
+     * @throws InternalErrorException
+     */
+    public function findTrashed(int $id): mixed
     {
         try {
             return Model::query()->onlyTrashed()->find($id);
-        } catch (\Throwable $th) {
-            return new InternalErrorException('');
+        } catch (\Exception) {
+            throw new InternalErrorException('');
         }
     }
 
     /**
-     * Delete Model record.
+     * @param int $id
+     * @return array
+     * @throws InternalErrorException
      */
-    public function delete(int $id)
+    public function delete(int $id): array
     {
         try {
             $model = Model::query()->find($id);
-            if (! $model) {
+            if (!$model) {
                 return
-                [
-                    'picture' => null,
-                    'model' => $model,
-                ];
+                    [
+                        'picture' => null,
+                        'model' => $model,
+                    ];
             }
 
             return
-            [
-                'picture' => $model->picture,
-                'model' => $model->delete(),
-            ];
-        } catch (\Throwable $th) {
-            return new InternalErrorException('');
+                [
+                    'picture' => $model->picture,
+                    'model' => $model->delete(),
+                ];
+        } catch (\Exception) {
+            throw new InternalErrorException('');
         }
     }
 
     /**
-     * restore model
+     * @param int $id
+     * @return true|void
+     * @throws InternalErrorException
      */
     public function restore(int $id)
     {
@@ -136,8 +168,8 @@ class ModelRepository implements ModelRepositoryInterface
 
                 return true;
             }
-        } catch (\Throwable $th) {
-            return new InternalErrorException('');
+        } catch (\Exception) {
+            throw new InternalErrorException('');
         }
     }
 }

@@ -3,7 +3,10 @@
 namespace Modules\Booking\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Log;
 use Modules\Booking\Http\Requests\StoreBookingRequest;
 use Modules\Booking\Http\Requests\UpdateBookingRequest;
 use Modules\Booking\Services\BookingService;
@@ -13,96 +16,126 @@ use Symfony\Component\HttpFoundation\Response;
 
 class BookingController extends Controller
 {
-    private $includes;
 
-    private $filters = ['customer_name', 'booking_date'];
+    private array $filters = ['customer_name', 'booking_date'];
 
+    /**
+     * @param Request $request
+     * @param BookingService $bookingService
+     */
     public function __construct(Request $request, protected BookingService $bookingService)
     {
-        return $this->setConstruct($request, BookingResource::class);
+        $this->setConstruct($request, BookingResource::class);
     }
 
     /**
-     * Display a listing of the resource.
+     * @param Request $request
+     * @return AnonymousResourceCollection|JsonResponse
      */
-    public function index(Request $request)
+    public function index(Request $request): AnonymousResourceCollection|JsonResponse
     {
-        $this->includes = explode(',', $request->input('include'));
-        $bookings = $this->bookingService->all($this->includes, $this->filters, $this->page, $this->perPage);
-        if ($bookings instanceof InternalErrorException) {
+        try {
+            $includes = explode(',', $request->input('include'));
+            $bookings = $this->bookingService->all($includes, $this->filters, $this->page, $this->perPage);
+            return $this->collection($bookings);
+
+        } catch (InternalErrorException $e) {
+            Log::error('DataBase Error: ' . $e->getMessage());
+            return $this->error(Response::HTTP_INTERNAL_SERVER_ERROR, 'Something went wrong, please try again later!');
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
             return $this->error(Response::HTTP_INTERNAL_SERVER_ERROR, 'Something went wrong, please try again later!');
         }
-
-        return $this->collection($bookings);
     }
 
     /**
-     * Store a newly created resource in storage.
+     * @param StoreBookingRequest $request
+     * @return JsonResponse|mixed
      */
-    public function store(StoreBookingRequest $request)
+    public function store(StoreBookingRequest $request): mixed
     {
-        $booking = $this->bookingService->create($request->validated());
+        try {
+            $booking = $this->bookingService->create($request->validated());
+            if (!$booking) {
+                return $this->error(Response::HTTP_CONFLICT, 'This model is not available for today, please select another date');
+            }
+            return $this->resource($booking);
 
-        if (! $booking) {
-            return $this->error(Response::HTTP_CONFLICT, 'This model is not available for today, please select another date');
-        }
-
-        if ($booking instanceof InternalErrorException) {
+        } catch (InternalErrorException $e) {
+            Log::error('DataBase Error: ' . $e->getMessage());
+            return $this->error(Response::HTTP_INTERNAL_SERVER_ERROR, 'Something went wrong, please try again later!');
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
             return $this->error(Response::HTTP_INTERNAL_SERVER_ERROR, 'Something went wrong, please try again later!');
         }
-
-        return $this->resource($booking);
     }
 
     /**
-     * Show the specified resource.
+     * @param $id
+     * @return JsonResponse|mixed
      */
-    public function show($id)
+    public function show($id): mixed
     {
-        $booking = $this->bookingService->find($id);
-        if (! $booking) {
-            return $this->error(Response::HTTP_NOT_FOUND, 'Resource not found!');
-        }
+        try {
+            $booking = $this->bookingService->find($id);
+            if (!$booking) {
+                return $this->error(Response::HTTP_NOT_FOUND, 'Resource not found!');
+            }
+            return $this->resource($booking->load('model'));
 
-        if ($booking instanceof InternalErrorException) {
+        } catch (InternalErrorException $e) {
+            Log::error('DataBase Error: ' . $e->getMessage());
+            return $this->error(Response::HTTP_INTERNAL_SERVER_ERROR, 'Something went wrong, please try again later!');
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
             return $this->error(Response::HTTP_INTERNAL_SERVER_ERROR, 'Something went wrong, please try again later!');
         }
 
-        return $this->resource($booking->load('model'));
     }
 
     /**
-     * Update the specified resource in storage.
+     * @param UpdateBookingRequest $request
+     * @param $id
+     * @return JsonResponse|mixed
      */
-    public function update(UpdateBookingRequest $request, $id)
+    public function update(UpdateBookingRequest $request, $id): mixed
     {
-        $updatedBooking = $this->bookingService->update($request->validated(), $id);
-        if (! $updatedBooking) {
-            return $this->error(Response::HTTP_NOT_FOUND, 'Resourse not found or model is not free at this date!');
-        }
+        try {
+            $updatedBooking = $this->bookingService->update($request->validated(), $id);
+            if (!$updatedBooking) {
+                return $this->error(Response::HTTP_NOT_FOUND, 'Resource not found or model is not free at this date!');
+            }
+            return $this->resource($updatedBooking);
 
-        if ($updatedBooking instanceof InternalErrorException) {
+        } catch (InternalErrorException $e) {
+            Log::error('DataBase Error: ' . $e->getMessage());
+            return $this->error(Response::HTTP_INTERNAL_SERVER_ERROR, 'Something went wrong, please try again later!');
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
             return $this->error(Response::HTTP_INTERNAL_SERVER_ERROR, 'Something went wrong, please try again later!');
         }
 
-        return $this->resource($updatedBooking);
     }
 
     /**
-     * Remove the specified resource from storage.
+     * @param $id
+     * @return JsonResponse
      */
-    public function destroy($id)
+    public function destroy($id): JsonResponse
     {
-        $deletedBooking = $this->bookingService->delete($id);
+        try {
+            $deletedBooking = $this->bookingService->delete($id);
+            if (!$deletedBooking) {
+                return $this->error(Response::HTTP_NOT_FOUND, 'Resource not found to do the delete operation or it is already deleted');
+            }
+            return $this->success([], 'Resource deleted successfully!');
 
-        if (! $deletedBooking) {
-            return $this->error(Response::HTTP_NOT_FOUND, 'Resource not found to do the delete operation or it is already deleted');
-        }
-
-        if ($deletedBooking instanceof InternalErrorException) {
+        } catch (InternalErrorException $e) {
+            Log::error('DataBase Error: ' . $e->getMessage());
+            return $this->error(Response::HTTP_INTERNAL_SERVER_ERROR, 'Something went wrong, please try again later!');
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
             return $this->error(Response::HTTP_INTERNAL_SERVER_ERROR, 'Something went wrong, please try again later!');
         }
-
-        return $this->success([], 'Resource deleted successfully!');
     }
 }
