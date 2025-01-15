@@ -6,6 +6,7 @@ use Modules\Category\Repositories\CategoryRepositoryInterface;
 
 class CategoryService
 {
+
     /**
      * Inject the repository.
      */
@@ -14,57 +15,73 @@ class CategoryService
     ) {}
 
     /**
-     * Get All records
+     * @param array $includes
+     * @param array $filters
+     * @param int $page
+     * @param int $perPage
+     * @return mixed
      */
-    public function all(array $includes, array $filters, int $page, int $perPage)
+    public function all(array $includes, array $filters, int $page, int $perPage): mixed
     {
         return $this->categoryRepository->all($includes, $filters, $page, $perPage);
     }
 
     /**
-     * Get all trashed records
+     * @param array $filters
+     * @param int $page
+     * @param int $perPage
+     * @return mixed
      */
-    public function allTrashed(array $filters, int $page, int $perPage)
+    public function allTrashed(array $filters, int $page, int $perPage): mixed
     {
         return $this->categoryRepository->getTrashed($filters, $page, $perPage);
     }
 
+
     /**
-     * create category
+     * @param array $data
+     * @return mixed
      */
-    public function create(array $data)
+    public function create(array $data): mixed
     {
         return $this->categoryRepository->create($data);
     }
 
     /**
-     * Get category
+     * @param int $id
+     * @return mixed
      */
-    public function find(int $id)
+    public function find(int $id): mixed
     {
         return $this->categoryRepository->find($id);
     }
 
+
     /**
-     * Update category
+     * @param array $data
+     * @param $id
+     * @return mixed
      */
-    public function update(array $data, $id)
+    public function update(array $data, $id): mixed
     {
         return $this->categoryRepository->update($data, $id);
     }
 
+
     /**
-     * Delete category
+     * @param int $id
+     * @return mixed
      */
-    public function delete(int $id)
+    public function delete(int $id): mixed
     {
         return $this->categoryRepository->delete($id);
     }
 
     /**
-     * Restore category
+     * @param int $id
+     * @return mixed
      */
-    public function restoreCategory(int $id)
+    public function restoreCategory(int $id): mixed
     {
         return $this->categoryRepository->restore($id);
     }

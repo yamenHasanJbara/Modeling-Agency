@@ -3,7 +3,6 @@
 namespace Modules\Booking\Services;
 
 use Modules\Booking\Repositories\BookingRepositoryInterface;
-use Symfony\Component\CssSelector\Exception\InternalErrorException;
 
 class BookingService
 {
@@ -12,7 +11,9 @@ class BookingService
      */
     public function __construct(
         protected BookingRepositoryInterface $bookingRepository
-    ) {}
+    )
+    {
+    }
 
     /**
      * Get All Available bookings
@@ -23,51 +24,52 @@ class BookingService
     }
 
     /**
-     * Create booking
+     * @param array $data
+     * @return null
      */
     public function create(array $data)
     {
         $checkIfModelAvailable = $this->bookingRepository->checkIfModelAvailable($data['model_id'], $data['booking_date']);
-        if (! $checkIfModelAvailable) {
+        if (!$checkIfModelAvailable) {
             return null;
-        }
-
-        if ($checkIfModelAvailable instanceof InternalErrorException) {
-            return new InternalErrorException('');
         }
 
         return $this->bookingRepository->create($data);
     }
 
     /**
-     * Get booking
+     * Get booking.
+     *
+     * @param int $id
+     * @return mixed
      */
-    public function find(int $id)
+    public function find(int $id): mixed
     {
         return $this->bookingRepository->find($id);
     }
 
     /**
-     * Update booking
+     * @param array $data
+     * @param $id
+     * @return null
      */
     public function update(array $data, $id)
     {
         $checkIfModelAvailable = $this->bookingRepository->checkIfModelAvailable($data['model_id'], $data['booking_date']);
-        if (! $checkIfModelAvailable) {
+        if (!$checkIfModelAvailable) {
             return null;
-        }
-
-        if ($checkIfModelAvailable instanceof InternalErrorException) {
-            return new InternalErrorException('');
         }
 
         return $this->bookingRepository->update($data, $id);
     }
 
     /**
-     * Delete booking
+     * Delete booking.
+     *
+     * @param int $id
+     * @return mixed
      */
-    public function delete(int $id)
+    public function delete(int $id): mixed
     {
         return $this->bookingRepository->delete($id);
     }

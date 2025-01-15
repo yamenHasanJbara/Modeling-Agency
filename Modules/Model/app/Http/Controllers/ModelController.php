@@ -3,7 +3,10 @@
 namespace Modules\Model\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Log;
 use Modules\Model\Http\Requests\StoreModelRequest;
 use Modules\Model\Http\Requests\UpdateModelRequest;
 use Modules\Model\Services\ModelService;
@@ -14,121 +17,162 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ModelController extends Controller
 {
-    private $includes;
 
-    private $filters = ['name', 'height'];
+    private array $filters = ['name', 'height'];
 
     public function __construct(Request $request, protected ModelService $modelService)
     {
-        return $this->setConstruct($request, ModelResource::class);
+        $this->setConstruct($request, ModelResource::class);
     }
 
     /**
-     * Display a listing of the resource.
+     * @param Request $request
+     * @return AnonymousResourceCollection|JsonResponse
      */
-    public function index(Request $request)
+    public function index(Request $request): AnonymousResourceCollection|JsonResponse
     {
-        $this->includes = explode(',', $request->input('include'));
-        $models = $this->modelService->all($this->includes, $this->filters, $this->page, $this->perPage);
-        if ($models instanceof InternalErrorException) {
+        try {
+            $includes = explode(',', $request->input('include'));
+            $models = $this->modelService->all($includes, $this->filters, $this->page, $this->perPage);
+            return $this->collection($models);
+        } catch (InternalErrorException $e) {
+            Log::error('DataBase Error: ' . $e->getMessage());
             return $this->error(Response::HTTP_INTERNAL_SERVER_ERROR, 'Something went wrong, please try again later!');
-        }
-        return $this->collection($models);
-    }
-
-    public function getTrashed()
-    {
-        $models = $this->modelService->allTrashed($this->filters, $this->page, $this->perPage);
-        if ($models instanceof InternalErrorException) {
-            return $this->error(Response::HTTP_INTERNAL_SERVER_ERROR, 'Something went wrong, please try again later!');
-        }
-        return $this->collection($models);
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreModelRequest $request)
-    {
-        $model = $this->modelService->create($request->validated());
-        if ($model instanceof InternalErrorException) {
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
             return $this->error(Response::HTTP_INTERNAL_SERVER_ERROR, 'Something went wrong, please try again later!');
         }
 
-        return $this->resource($model);
     }
 
     /**
-     * Show the specified resource.
+     * @return AnonymousResourceCollection|JsonResponse
      */
-    public function show($id)
+    public function getTrashed(): AnonymousResourceCollection|JsonResponse
     {
-        $model = $this->modelService->find($id);
-        if (! $model) {
-            return $this->error(Response::HTTP_NOT_FOUND, 'Resource not found!');
-        }
-
-        if ($model instanceof InternalErrorException) {
+        try {
+            $models = $this->modelService->allTrashed($this->filters, $this->page, $this->perPage);
+            return $this->collection($models);
+        } catch (InternalErrorException $e) {
+            Log::error('DataBase Error: ' . $e->getMessage());
+            return $this->error(Response::HTTP_INTERNAL_SERVER_ERROR, 'Something went wrong, please try again later!');
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
             return $this->error(Response::HTTP_INTERNAL_SERVER_ERROR, 'Something went wrong, please try again later!');
         }
-
-        return $this->resource($model->load('category', 'bookings'));
     }
 
     /**
-     * Update the specified resource in storage.
+     * @param StoreModelRequest $request
+     * @return JsonResponse|mixed
      */
-    public function update(UpdateModelRequest $request, $id)
+    public function store(StoreModelRequest $request): mixed
     {
-        $updatedModel = $this->modelService->update($request->validated(), $id);
-
-        if (! $updatedModel) {
-            return $this->error(Response::HTTP_NOT_FOUND, 'Resourse not found!');
-        }
-
-        if ($updatedModel instanceof InternalErrorException) {
+        try {
+            $model = $this->modelService->create($request->validated());
+            return $this->resource($model);
+        } catch (InternalErrorException $e) {
+            Log::error('DataBase Error: ' . $e->getMessage());
+            return $this->error(Response::HTTP_INTERNAL_SERVER_ERROR, 'Something went wrong, please try again later!');
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
             return $this->error(Response::HTTP_INTERNAL_SERVER_ERROR, 'Something went wrong, please try again later!');
         }
-
-        return $this->resource($updatedModel);
     }
 
+
     /**
-     * Remove the specified resource from storage.
+     * @param $id
+     * @return JsonResponse|mixed
      */
-    public function destroy($id)
+    public function show($id): mixed
     {
-        $deletedModel = $this->modelService->delete($id);
+        try {
+            $model = $this->modelService->find($id);
+            if (!$model) {
+                return $this->error(Response::HTTP_NOT_FOUND, 'Resource not found!');
+            }
+            return $this->resource($model->load('category', 'bookings'));
 
-        if (! $deletedModel) {
-            return $this->error(Response::HTTP_NOT_FOUND, 'Resource not found to do the delete operation or is already deleted');
-        }
-
-        if ($deletedModel instanceof InternalErrorException) {
+        } catch (InternalErrorException $e) {
+            Log::error('DataBase Error: ' . $e->getMessage());
+            return $this->error(Response::HTTP_INTERNAL_SERVER_ERROR, 'Something went wrong, please try again later!');
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
             return $this->error(Response::HTTP_INTERNAL_SERVER_ERROR, 'Something went wrong, please try again later!');
         }
-
-        return $this->success([], 'Resource deleted successfully!');
     }
 
-    /**
-     * Resotre model
-     */
-    public function restore(int $id)
-    {
-        $model = $this->modelService->restore($id);
-        if (! $model) {
-            return $this->error(Response::HTTP_NOT_FOUND, 'Resourse not found to do the restore or is already restored!');
-        }
 
-        if ($model instanceof NotFoundHttpException) {
+    /**
+     * @param UpdateModelRequest $request
+     * @param $id
+     * @return JsonResponse|mixed
+     */
+    public function update(UpdateModelRequest $request, $id): mixed
+    {
+        try {
+            $updatedModel = $this->modelService->update($request->validated(), $id);
+            if (!$updatedModel) {
+                return $this->error(Response::HTTP_NOT_FOUND, 'Resource not found!');
+            }
+            return $this->resource($updatedModel);
+
+        } catch (InternalErrorException $e) {
+            Log::error('DataBase Error: ' . $e->getMessage());
+            return $this->error(Response::HTTP_INTERNAL_SERVER_ERROR, 'Something went wrong, please try again later!');
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+            return $this->error(Response::HTTP_INTERNAL_SERVER_ERROR, 'Something went wrong, please try again later!');
+        }
+    }
+
+
+    /**
+     * @param $id
+     * @return JsonResponse
+     */
+    public function destroy($id): JsonResponse
+    {
+        try {
+            $deletedModel = $this->modelService->delete($id);
+
+            if (!$deletedModel) {
+                return $this->error(Response::HTTP_NOT_FOUND, 'Resource not found to do the delete operation or is already deleted');
+            }
+            return $this->success([], 'Resource deleted successfully!');
+
+        } catch (InternalErrorException $e) {
+            Log::error('DataBase Error: ' . $e->getMessage());
+            return $this->error(Response::HTTP_INTERNAL_SERVER_ERROR, 'Something went wrong, please try again later!');
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+            return $this->error(Response::HTTP_INTERNAL_SERVER_ERROR, 'Something went wrong, please try again later!');
+        }
+    }
+
+
+    /**
+     * @param int $id
+     * @return JsonResponse
+     */
+    public function restore(int $id): JsonResponse
+    {
+        try {
+            $model = $this->modelService->restore($id);
+            if (!$model) {
+                return $this->error(Response::HTTP_NOT_FOUND, 'Resourse not found to do the restore or is already restored!');
+            }
+            return $this->success([], 'Resource restored successfully!');
+
+        } catch (NotFoundHttpException) {
             return $this->error(Response::HTTP_NOT_FOUND, 'The category for this model is deleted, you need to restore the category so you can restore the model');
-        }
-
-        if ($model instanceof InternalErrorException) {
+        } catch (InternalErrorException $e) {
+            Log::error('DataBase Error: ' . $e->getMessage());
+            return $this->error(Response::HTTP_INTERNAL_SERVER_ERROR, 'Something went wrong, please try again later!');
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
             return $this->error(Response::HTTP_INTERNAL_SERVER_ERROR, 'Something went wrong, please try again later!');
         }
-
-        return $this->success([], 'Resource restored successfully!');
     }
 }
